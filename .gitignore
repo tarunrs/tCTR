@@ -1,0 +1,6 @@
+ne_experimentation.py
+temp.py
+utils_min.py
+*.pyc
+*.py~
+data
