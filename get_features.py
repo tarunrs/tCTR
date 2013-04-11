@@ -22,7 +22,7 @@ def capitalize_nouns(t):
 
 def delete_from_list(l, to_delete):
   for i, el in enumerate(l):
-    if el in to_delete:
+    if el in to_delete or el.lower() in to_delete:
       del l[i]
 
 def sanitize_for_nltk(tweet, preserve_case=False):
@@ -90,9 +90,18 @@ def add_pos_tags(tweet):
   p = nltk.pos_tag(tweet.p_sanitized_tokens)
   tags = list(zip(*p)[1])
   pos_tags = defaultdict(int)
-  for tag in tags:
+  bigram_pos_tags = defaultdict(int)
+  trigram_pos_tags = defaultdict(int)
+  max_len = len(tags)
+  for i, tag in enumerate(tags):
     pos_tags[tag] += 1
+    if i + 1 < max_len:
+      bigram_pos_tags[tag + tags[i + 1]] += 1
+      if i + 2 < max_len:
+        trigram_pos_tags[tag + tags[i + 1] + tags[i + 2] ] += 1
   setattr(tweet, 'p_pos_tags', pos_tags)
+  setattr(tweet, 'p_bigram_pos_tags', bigram_pos_tags)
+  setattr(tweet, 'p_trigram_pos_tags', trigram_pos_tags)
   
 def add_features(tweet):
   add_named_entities(tweet)
@@ -116,8 +125,8 @@ if __name__ == "__main__":
   else:
     user_id = sys.argv[1] 
     print "Starting processing for:", user_id
-    ifname = user_id + "/ctr_data/tweets.pkl"
-    #ifname = user_id + "/feature_data/tweets.pkl"
-    ofname = user_id + "/feature_data/tweets.pkl"
+    ifname = "data/" + user_id + "/ctr_data/tweets.pkl"
+    #ifname = "data/" + user_id + "/feature_data/tweets.pkl"
+    ofname = "data/" + user_id + "/feature_data/tweets.pkl"
     dump_features(ifname, ofname)
     
